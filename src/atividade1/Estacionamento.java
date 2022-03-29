@@ -1,6 +1,12 @@
 package atividade1;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Estacionamento {
 	private String [] placas;
@@ -14,11 +20,35 @@ public class Estacionamento {
 	
 	public void entrar (String placa, int vaga) {
 		placas[vaga-1] = placa;
+		String data = LocalDateTime.now().toString();
+		String temp = "entrada;"+placa+";"+Integer.toString(vaga)+";"+data+"\n";
+		
+		try {
+			File arquivo = new File("src/atividade1/historico.csv");
+			FileWriter saida = new FileWriter(arquivo, true);			
+			saida.write(temp);
+			saida.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void sair (int vaga) {
+		String data = LocalDateTime.now().toString();
+		String temp = "saida;"+placas[vaga-1]+";"+Integer.toString(vaga)+";"+data+"\n";
 		placas [vaga-1] = "Livre";
+		try {
+			File arquivo = new File("src/atividade1/historico.csv");
+			FileWriter saida = new FileWriter(arquivo, true);			
+			saida.write(temp);
+			saida.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
 	
 	public int consultarPlaca (String placa) {
 		int tamanhoArray = placas.length;
@@ -69,11 +99,42 @@ public class Estacionamento {
 	}
 	
 	public void lerDados () {
-		
+		try {
+			Scanner arquivo = new Scanner(new File("src/atividade1/placas.csv"));
+			String cabecalho = arquivo.nextLine();
+			String [] vagasOcupadas;
+			String entrada;
+			String [] partes;
+			while(arquivo.hasNextLine()) {
+				entrada = arquivo.nextLine();
+				partes = entrada.split(";");
+				System.out.println(partes[0]+" - "+partes[1]);
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void gravarDados () {
-		
+		String temp = "vaga;placa\n";
+		for (String placa : placas) {
+			
+			int vaga = this.consultarPlaca(placa);
+			
+			if(vaga != -1 && placa != "Livre") {
+				temp += Integer.toString(vaga)+";"+placa+"\n";
+			}
+		}
+		try {
+			File arquivo = new File("src/atividade1/placas.csv");
+			FileWriter saida = new FileWriter(arquivo, false);			
+			saida.write(temp);
+			saida.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }	
 
