@@ -18,7 +18,12 @@ public class Estacionamento {
 		}
 	}
 	
-	public void entrar (String placa, int vaga) {
+	public void entrar (String placa, int vaga) throws Exception{
+		
+		if(this.consultarVaga(vaga) != "Livre") {
+			throw new Exception("Vaga ocupada");
+		}
+		
 		placas[vaga-1] = placa;
 		String data = LocalDateTime.now().toString();
 		String temp = "entrada;"+placa+";"+Integer.toString(vaga)+";"+data+"\n";
@@ -34,7 +39,11 @@ public class Estacionamento {
 		}
 	}
 	
-	public void sair (int vaga) {
+	public void sair (int vaga) throws Exception{
+		if(this.consultarVaga(vaga) == "Livre") {
+			throw new Exception("Vaga está livre!");
+		}
+		
 		String data = LocalDateTime.now().toString();
 		String temp = "saida;"+placas[vaga-1]+";"+Integer.toString(vaga)+";"+data+"\n";
 		placas [vaga-1] = "Livre";
@@ -50,7 +59,7 @@ public class Estacionamento {
 	}
 	
 	
-	public int consultarPlaca (String placa) {
+	public int consultarPlaca (String placa) throws Exception {
 		int tamanhoArray = placas.length;
 		int vaga;
 		for (int i = 0; i < tamanhoArray; i++) {
@@ -59,14 +68,23 @@ public class Estacionamento {
 				return vaga;
 			}
 		}
-		return -1;
+		throw new Exception("-1");
 	}
 	
-	public String consultarVaga (int vaga) {
+	public String consultarVaga (int vaga) throws Exception{
+		if(vaga > placas.length || vaga < 1) {
+			throw new Exception("Vaga inválida!");
+		}
 		return placas [vaga -1];
 	}
 	
-	public void transferir (int vaga1, int vaga2) {
+	public void transferir (int vaga1, int vaga2) throws Exception{
+		if(vaga1 == vaga2) {
+			throw new Exception ("Não é possível transferir para mesma vaga!");
+		}
+		if(consultarVaga(vaga1) =="Livre") {
+			throw new Exception ("A vaga fornecida está livre!");
+		}
 		String temp = placas [vaga2 - 1];
 		placas [vaga2 - 1] = placas [vaga1 - 1];
 		placas [vaga1 -1 ] = temp;
@@ -116,15 +134,21 @@ public class Estacionamento {
 		}
 	}
 	
-	public void gravarDados () {
+	public void gravarDados ()  {
+		
 		String temp = "vaga;placa\n";
-		for (String placa : placas) {
+		try {
 			
-			int vaga = this.consultarPlaca(placa);
-			
-			if(vaga != -1 && placa != "Livre") {
-				temp += Integer.toString(vaga)+";"+placa+"\n";
+			for (String placa : placas) {
+				
+				int vaga = this.consultarPlaca(placa);
+				
+				if(vaga != -1 && placa != "Livre") {
+					temp += Integer.toString(vaga)+";"+placa+"\n";
+				}
 			}
+		} catch (Exception e) {
+			e.getMessage();
 		}
 		try {
 			File arquivo = new File("src/atividade1/placas.csv");
